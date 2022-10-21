@@ -674,16 +674,25 @@ namespace HelloAppWidget
 			public const int view_tree_lifecycle_owner = 2131034185;
 			
 			// aapt resource value: 0x7F05004A
-			public const int widgetAnnouncementIcon = 2131034186;
+			public const int widgetBackground = 2131034186;
 			
 			// aapt resource value: 0x7F05004B
-			public const int widgetBackground = 2131034187;
+			public const int widgetMedium = 2131034187;
 			
 			// aapt resource value: 0x7F05004C
-			public const int widgetMedium = 2131034188;
+			public const int widgetMedium2 = 2131034188;
 			
 			// aapt resource value: 0x7F05004D
-			public const int widgetSmall = 2131034189;
+			public const int widgetMedium3 = 2131034189;
+			
+			// aapt resource value: 0x7F05004E
+			public const int widgetSmall = 2131034190;
+			
+			// aapt resource value: 0x7F05004F
+			public const int widgetSmall2 = 2131034191;
+			
+			// aapt resource value: 0x7F050050
+			public const int widgetSmall3 = 2131034192;
 			
 			static Id()
 			{

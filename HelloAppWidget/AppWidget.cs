@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Appwidget;
@@ -36,15 +37,15 @@ namespace HelloAppWidget
 		{
 			var me = new ComponentName(context, Java.Lang.Class.FromType(typeof(AppWidget)).Name);
 
-            var data = await Api.GetDataFromServerAsync().ConfigureAwait(false);
+            var vattenfallSpotPrices = await Api.GetDataFromVattenFallAsync().ConfigureAwait(false);
 
-			if(data == null)
+			if(vattenfallSpotPrices == null)
             {
 				return;
             }
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                appWidgetManager.UpdateAppWidget(me, BuildRemoteViews(context, appWidgetIds, data));
+                appWidgetManager.UpdateAppWidget(me, BuildRemoteViews(context, appWidgetIds, vattenfallSpotPrices));
             });
 		}
         public override void OnReceive(Context context, Intent intent)
@@ -68,25 +69,50 @@ namespace HelloAppWidget
             }
         }
 
-        private RemoteViews BuildRemoteViews(Context context, int[] appWidgetIds, VattenfallSpotPrice vattenfallSpotPrice)
+        private RemoteViews BuildRemoteViews(Context context, int[] appWidgetIds, IEnumerable<VattenfallSpotPrice> vattenfallSpotPrices)
 		{
 			// Retrieve the widget layout. This is a RemoteViews, so we can't use 'FindViewById'
 			var widgetView = new RemoteViews(context.PackageName, Resource.Layout.Widget);
 
-			SetTextViewText(widgetView, vattenfallSpotPrice);
+			SetTextViewText(widgetView, vattenfallSpotPrices);
 			RegisterClicks(context, appWidgetIds, widgetView);
 
 			return widgetView;
 		}
 
-		private void SetTextViewText(RemoteViews widgetView, VattenfallSpotPrice vattenfallSpotPrice)
+		private void SetTextViewText(RemoteViews widgetView, IEnumerable<VattenfallSpotPrice> vattenfallSpotPrices)
 		{
-			
-			widgetView.SetTextViewText(Resource.Id.widgetMedium, $"Price {vattenfallSpotPrice.Value} {vattenfallSpotPrice.Unit}");
-			widgetView.SetTextViewText(Resource.Id.widgetSmall, $"Last at: {vattenfallSpotPrice.TimeStampHour}");
-		}
+            var only3rowOfData = vattenfallSpotPrices.Take(3).ToArray();
 
-		private void RegisterClicks(Context context, int[] appWidgetIds, RemoteViews widgetView)
+
+
+            for(int i = 0; i< 3; i++)
+            {
+                string smallText = $"Last at: {only3rowOfData[i].TimeStampHour}";
+                string mediumText = $"Price {only3rowOfData[i].Value} {only3rowOfData[i].Unit}";
+
+                if (i == 0)
+                {
+                    widgetView.SetTextViewText(Resource.Id.widgetSmall, smallText);
+                    widgetView.SetTextViewText(Resource.Id.widgetMedium, mediumText);
+                }
+                else if(i == 1)
+                {
+                    widgetView.SetTextViewText(Resource.Id.widgetSmall2, smallText);
+                    widgetView.SetTextViewText(Resource.Id.widgetMedium2, mediumText);
+                }
+                else if (i == 2)
+                {
+                    widgetView.SetTextViewText(Resource.Id.widgetSmall3, smallText);
+                    widgetView.SetTextViewText(Resource.Id.widgetMedium3, mediumText);
+                }
+
+            }
+
+
+        }
+
+        private void RegisterClicks(Context context, int[] appWidgetIds, RemoteViews widgetView)
 		{
 			var intent = new Intent(context, typeof(AppWidget));
 			intent.SetAction(AppWidgetManager.ActionAppwidgetUpdate);
@@ -96,8 +122,7 @@ namespace HelloAppWidget
 			var piBackground = PendingIntent.GetBroadcast(context, 0, intent, PendingIntentFlags.UpdateCurrent);
 			widgetView.SetOnClickPendingIntent(Resource.Id.widgetBackground, piBackground);
 
-			// Register click event for the Announcement-icon
-			widgetView.SetOnClickPendingIntent(Resource.Id.widgetAnnouncementIcon, GetPendingSelfIntent(context, AnnouncementClick));
+
 		}
 
 		private PendingIntent GetPendingSelfIntent(Context context, string action)

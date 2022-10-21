@@ -21,7 +21,7 @@ namespace HelloAppWidget
 
     public interface IDataFromApi
     {
-        Task<VattenfallSpotPrice> GetDataFromServerAsync();
+        Task<IEnumerable<VattenfallSpotPrice>> GetDataFromVattenFallAsync();
     }
 
     public class DataApi : IDataFromApi
@@ -34,7 +34,7 @@ namespace HelloAppWidget
 
         }
 
-        public async Task<VattenfallSpotPrice> GetDataFromServerAsync()
+        public async Task<IEnumerable<VattenfallSpotPrice>> GetDataFromVattenFallAsync()
         {
             try
             {
@@ -44,7 +44,7 @@ namespace HelloAppWidget
 
                 var model = JsonConvert.DeserializeObject<List<VattenfallSpotPrice>>(json);
 
-                return model.LastOrDefault();
+                return model.ToList();
             }
             catch(Exception exception)
             {
