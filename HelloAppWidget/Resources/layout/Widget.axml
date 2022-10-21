@@ -8,13 +8,14 @@
     <RelativeLayout
         android:layout_width="72dip"
         android:layout_height="fill_parent">
-        <ImageView
-            android:id="@+id/widgetAnnouncementIcon"
-            android:src="@drawable/announcement"
-            android:layout_width="35dip"
-            android:layout_height="35dip"
-            android:layout_marginLeft="15dip"
-            android:layout_marginTop="20dip" />
+		<ImageView
+			android:id="@+id/widgetAnnouncementIcon"
+			android:src="@drawable/announcement"
+			android:layout_width="35dip"
+			android:layout_height="35dip"
+			android:layout_marginLeft="15dip"
+			android:layout_marginTop="20dip"
+			android:contentDescription="Announcement Icon" />
     </RelativeLayout>
     <LinearLayout
         android:orientation="vertical"
@@ -22,7 +23,7 @@
         android:layout_height="match_parent">
         <TextView
             android:id="@+id/widgetMedium"
-            android:text="HelloAppWidget"
+            android:text="[HelloAppWidget]"
             android:textColor="#003082"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"
@@ -30,7 +31,7 @@
             android:layout_marginTop="5dp" />
         <TextView
             android:id="@+id/widgetSmall"
-            android:text="Last refresh: 00:00"
+            android:text="[Last refresh: 00:00]"
             android:textColor="#003082"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_width="wrap_content"

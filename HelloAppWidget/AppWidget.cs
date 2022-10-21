@@ -9,7 +9,7 @@ using Android.Widget;
 
 namespace HelloAppWidget
 {
-	[BroadcastReceiver(Label = "HellApp Widget")]
+    [BroadcastReceiver(Label = "HellApp Widget")]
 	[IntentFilter(new string[] { "android.appwidget.action.APPWIDGET_UPDATE" })]
 	[MetaData("android.appwidget.provider", Resource = "@xml/appwidgetprovider")]
 	public class AppWidget : AppWidgetProvider
@@ -106,32 +106,6 @@ namespace HelloAppWidget
 			intent.SetAction(action);
 			return PendingIntent.GetBroadcast(context, 0, intent, 0);
 		}
-
-
-
-
-		private class DataFromApi
-        {
-			public string Price { get;  set; }
-            public DateTime Date { get; set;  }
-        }
-
-		private class DataApi
-        {
-            public async Task<DataFromApi> GetDataFromServerAsync()
-            {
-
-                await Task.Delay(500);
-
-                return new DataFromApi()
-                {
-                    Date = DateTime.Now,
-                    Price = new Random().Next().ToString()
-                };
-
-            }
-        }
-		
 
 	}
 }
