@@ -4,7 +4,7 @@
 	android:minHeight="72dip"
 	android:resizeMode="horizontal"
 	android:minResizeWidth="144dip"
-	android:updatePeriodMillis="100"
+	android:updatePeriodMillis="10000"
 	android:initialLayout="@layout/Widget"
 	android:previewImage="@drawable/previewImage"
 />

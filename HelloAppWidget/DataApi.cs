@@ -1,40 +1,81 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Newtonsoft.Json;
+using Android.Net;
+using Javax.Net.Ssl;
+using Xamarin.Android.Net;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HelloAppWidget
 {
 
-    public class DataFromApi
+    public class VattenfallSpotPrice
     {
-        public string Price { get; set; }
-        public DateTime Date { get; set; }
+        
+        public string TimeStampHour { get; set; }
+        public double Value { get; set; }
+        public string Unit { get; set; }
     }
 
-    public class DataApi
+    public interface IDataFromApi
+    {
+        Task<VattenfallSpotPrice> GetDataFromServerAsync();
+    }
+
+    public class DataApi : IDataFromApi
     {
 		private readonly System.Net.Http.HttpClient _client;
          
         public DataApi()
         {
-            _client = new HttpClient(new Xamarin.Android.Net.AndroidClientHandler());
+            _client = new HttpClient(new IgnoreSSLClientHandler());
 
         }
 
-        public async Task<DataFromApi> GetDataFromServerAsync()
+        public async Task<VattenfallSpotPrice> GetDataFromServerAsync()
         {
-
-           // _client.GetStringAsync()
-
-            await Task.Delay(500);
-
-            return new DataFromApi()
+            try
             {
-                Date = DateTime.Now,
-                Price = new Random().Next().ToString()
-            };
+                string spotPricesUrl = "https://www.vattenfall.se/api/price/spot/pricearea/2019-01-07/2019-01-07/SN4";
+
+                var json = await _client.GetStringAsync(spotPricesUrl);
+
+                var model = JsonConvert.DeserializeObject<List<VattenfallSpotPrice>>(json);
+
+                return model.LastOrDefault();
+            }
+            catch(Exception exception)
+            {
+                return null;
+            }
+
 
         }
+     
+        internal class IgnoreSSLClientHandler : AndroidClientHandler
+        {
+            [Obsolete]
+            protected override SSLSocketFactory ConfigureCustomSSLSocketFactory(HttpsURLConnection connection)
+            {
+                return SSLCertificateSocketFactory.GetInsecure(1000, null);
+            }
+
+            protected override IHostnameVerifier GetSSLHostnameVerifier(HttpsURLConnection connection)
+            {
+                return new IgnoreSSLHostnameVerifier();
+            }
+        }
+
+        internal class IgnoreSSLHostnameVerifier : Java.Lang.Object, IHostnameVerifier
+        {
+            public bool Verify(string hostname, ISSLSession session)
+            {
+                return true;
+            }
+        }
+        
     }
 		
 

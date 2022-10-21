@@ -6,6 +6,8 @@ using Android.Appwidget;
 using Android.Content;
 using Android.Util;
 using Android.Widget;
+using Xamarin.Essentials;
+using static Android.Telecom.Call;
 
 namespace HelloAppWidget
 {
@@ -16,8 +18,8 @@ namespace HelloAppWidget
 	{
 		private static readonly string AnnouncementClick = "AnnouncementClickTag";
 
-		private DataApi _api;
-        private DataApi Api
+		private IDataFromApi _api;
+        private IDataFromApi Api
         {
             get
             {
@@ -30,21 +32,20 @@ namespace HelloAppWidget
         }
 
 
-        public override void OnUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds)
+        public override async void OnUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds)
 		{
 			var me = new ComponentName(context, Java.Lang.Class.FromType(typeof(AppWidget)).Name);
 
-			Task.Run(async () =>
-			{
-                var data = await Api.GetDataFromServerAsync();
+            var data = await Api.GetDataFromServerAsync().ConfigureAwait(false);
 
-
+			if(data == null)
+            {
+				return;
+            }
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
                 appWidgetManager.UpdateAppWidget(me, BuildRemoteViews(context, appWidgetIds, data));
             });
-			
-
-
-            
 		}
         public override void OnReceive(Context context, Intent intent)
         {
@@ -67,23 +68,22 @@ namespace HelloAppWidget
             }
         }
 
-        private RemoteViews BuildRemoteViews(Context context, int[] appWidgetIds, DataFromApi dataFromApi)
+        private RemoteViews BuildRemoteViews(Context context, int[] appWidgetIds, VattenfallSpotPrice vattenfallSpotPrice)
 		{
 			// Retrieve the widget layout. This is a RemoteViews, so we can't use 'FindViewById'
 			var widgetView = new RemoteViews(context.PackageName, Resource.Layout.Widget);
 
-			SetTextViewText(widgetView, dataFromApi);
+			SetTextViewText(widgetView, vattenfallSpotPrice);
 			RegisterClicks(context, appWidgetIds, widgetView);
 
 			return widgetView;
 		}
 
-		private void SetTextViewText(RemoteViews widgetView, DataFromApi dataFromApi)
+		private void SetTextViewText(RemoteViews widgetView, VattenfallSpotPrice vattenfallSpotPrice)
 		{
-			string dateString = string.Format($"Last update: {dataFromApi.Date.ToString("H:mm:ss")}");
-
-			widgetView.SetTextViewText(Resource.Id.widgetMedium, dataFromApi.Price);
-			widgetView.SetTextViewText(Resource.Id.widgetSmall, dateString);
+			
+			widgetView.SetTextViewText(Resource.Id.widgetMedium, $"Price {vattenfallSpotPrice.Value} {vattenfallSpotPrice.Unit}");
+			widgetView.SetTextViewText(Resource.Id.widgetSmall, $"Last at: {vattenfallSpotPrice.TimeStampHour}");
 		}
 
 		private void RegisterClicks(Context context, int[] appWidgetIds, RemoteViews widgetView)
